@@ -16,9 +16,9 @@ namespace BuhUchet
         private readonly Dictionary<TextBox, AutoCompleteState> _states = new();
 
         // ─── Подключить TextBox к сервису ───────────────────────────────────
-        public void Attach(TextBox textBox, Func<IEnumerable<string>> sourceProvider)
+        public void Attach(TextBox textBox, Func<IEnumerable<string>> sourceProvider, Action<string>? onSelected = null)
         {
-            var state = new AutoCompleteState(sourceProvider);
+            var state = new AutoCompleteState(sourceProvider, onSelected);
             _states[textBox] = state;
 
             textBox.PreviewKeyDown += (s, e) =>
@@ -73,6 +73,7 @@ namespace BuhUchet
                 textBox.Text = matches[0];
                 textBox.CaretIndex = textBox.Text.Length;
                 HidePopup(state);
+                state.OnSelected?.Invoke(matches[0]);
                 return true;
             }
             else if (matches.Count > 1)
@@ -122,6 +123,7 @@ namespace BuhUchet
                     textBox.Text = selected;
                     textBox.CaretIndex = textBox.Text.Length;
                     HidePopup(state);
+                    state.OnSelected?.Invoke(selected);
                     textBox.Focus();
                 }
             };
@@ -133,6 +135,7 @@ namespace BuhUchet
                     textBox.Text = selected;
                     textBox.CaretIndex = textBox.Text.Length;
                     HidePopup(state);
+                    state.OnSelected?.Invoke(selected);
                     textBox.Focus();
                     e.Handled = true;
                 }
@@ -172,12 +175,14 @@ namespace BuhUchet
     internal class AutoCompleteState
     {
         public Func<IEnumerable<string>> SourceProvider { get; }
+        public Action<string>? OnSelected { get; }
         public System.Windows.Controls.Primitives.Popup? Popup { get; set; }
         public ListBox? ListBox { get; set; }
 
-        public AutoCompleteState(Func<IEnumerable<string>> sourceProvider)
+        public AutoCompleteState(Func<IEnumerable<string>> sourceProvider, Action<string>? onSelected)
         {
             SourceProvider = sourceProvider;
+            OnSelected = onSelected;
         }
     }
 }

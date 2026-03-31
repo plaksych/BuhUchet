@@ -1,176 +1,157 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Threading;
 using Microsoft.Win32;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace BuhUchet
 {
     public partial class MainWindow : Window
     {
-        // ─── Данные ─────────────────────────────────────────────────────────
-        private ObservableCollection<JournalEntry>  _journal         = new();
-        private ObservableCollection<Counterparty>  _counterparties  = new();
-        private ObservableCollection<AccountPlan>   _accounts        = new();
+        private ObservableCollection<JournalEntry> _journal = new();
+        private ObservableCollection<Counterparty> _counterparties = new();
+        private ObservableCollection<AccountPlan> _accounts = new();
 
-        private readonly DataService        _dataService    = new();
-        private readonly AutoCompleteService _autoComplete  = new();
+        private readonly DataService _dataService = new();
+        private readonly AutoCompleteService _autoComplete = new();
+        private readonly string _dataPath = AppDataStore.DefaultPath;
 
-        private string? _currentFilePath;
-        private bool    _isDirty;
+        private bool _isDirty;
+        private DateTime? _lastSavedAt;
+        private DispatcherTimer? _saveDebounceTimer;
 
-        // Редактируемые объекты
         private JournalEntry? _editingEntry;
         private Counterparty? _editingCp;
-        private bool          _isNewEntry;
-        private bool          _isNewCp;
-        private int           _nextId = 1;
+        private bool _isNewEntry;
+        private bool _isNewCp;
+        private int _nextId = 1;
 
-        // ─── Инициализация ───────────────────────────────────────────────
         public MainWindow()
         {
             InitializeComponent();
-            LoadDemoData();
+            LoadData();
             BindGrids();
             SetupAutoComplete();
             NavigateTo("Journal");
             UpdateStatusBar();
 
-            // Дефолтный период ОСВ
             PickOsvFrom.SelectedDate = new DateTime(DateTime.Today.Year, 1, 1);
-            PickOsvTo.SelectedDate   = DateTime.Today;
+            PickOsvTo.SelectedDate = DateTime.Today;
         }
 
-        private void LoadDemoData()
+        private void LoadData()
         {
-            var demo = DataService.DemoData();
-            _journal        = new ObservableCollection<JournalEntry>(demo.Journal);
-            _counterparties = new ObservableCollection<Counterparty>(demo.Counterparties);
-            _accounts       = new ObservableCollection<AccountPlan>(demo.Accounts);
+            var data = AppDataStore.LoadOrCreate(_dataPath);
+            _journal = new ObservableCollection<JournalEntry>(data.Journal ?? new List<JournalEntry>());
+            _counterparties = new ObservableCollection<Counterparty>(data.Counterparties ?? new List<Counterparty>());
+            _accounts = new ObservableCollection<AccountPlan>(data.Accounts ?? new List<AccountPlan>());
             _nextId = _journal.Count > 0 ? _journal.Max(e => e.Id) + 1 : 1;
+            _lastSavedAt = data.SavedAt;
+            _isDirty = false;
         }
 
         private void BindGrids()
         {
-            GridJournal.ItemsSource        = _journal;
+            GridJournal.ItemsSource = _journal;
             GridCounterparties.ItemsSource = _counterparties;
-            GridAccounts.ItemsSource       = _accounts;
+            GridAccounts.ItemsSource = _accounts;
             UpdateJournalCount();
         }
 
-        // ─── Автодополнение ──────────────────────────────────────────────
         private void SetupAutoComplete()
         {
-            // Контрагент в журнале: по имени из справочника
-            _autoComplete.Attach(TxtCounterparty, () => _counterparties.Select(c => c.Name));
-
-            // Счета Дт/Кт: по коду из плана счетов
-            _autoComplete.Attach(TxtDebit,  () => _accounts.Select(a => a.Code)
-                                                             .Concat(_accounts.Select(a => a.Name)));
-            _autoComplete.Attach(TxtCredit, () => _accounts.Select(a => a.Code)
-                                                             .Concat(_accounts.Select(a => a.Name)));
-
-            // Наименование контрагента в справочнике (обучает себя само)
+            _autoComplete.Attach(TxtCounterparty, () => _counterparties.Select(c => c.Name), ApplyCounterpartyToEntryByName);
+            _autoComplete.Attach(TxtDebit, () => _accounts.Select(a => a.Code).Concat(_accounts.Select(a => a.Name)));
+            _autoComplete.Attach(TxtCredit, () => _accounts.Select(a => a.Code).Concat(_accounts.Select(a => a.Name)));
             _autoComplete.Attach(TxtCpName, () => _counterparties.Select(c => c.Name));
-
-            // Описание: из всех уже введённых описаний
             _autoComplete.Attach(TxtDescription, () => _journal.Select(e => e.Description).Distinct());
+
+            TxtCounterparty.TextChanged += (_, _) => ApplyCounterpartyToEntryByName(TxtCounterparty.Text);
         }
 
-        // ─── Навигация ───────────────────────────────────────────────────
         private void NavButton_Click(object sender, RoutedEventArgs e)
         {
-            if (sender is Button btn && btn.Tag is string tag)
-                NavigateTo(tag);
+            if (sender is Button btn && btn.Tag is string section)
+                NavigateTo(section);
         }
 
         private void NavigateTo(string section)
         {
-            PanelJournal.Visibility        = section == "Journal"        ? Visibility.Visible : Visibility.Collapsed;
+            PanelJournal.Visibility = section == "Journal" ? Visibility.Visible : Visibility.Collapsed;
             PanelCounterparties.Visibility = section == "Counterparties" ? Visibility.Visible : Visibility.Collapsed;
-            PanelAccounts.Visibility       = section == "Accounts"       ? Visibility.Visible : Visibility.Collapsed;
-            PanelReports.Visibility        = section == "Reports"        ? Visibility.Visible : Visibility.Collapsed;
+            PanelAccounts.Visibility = section == "Accounts" ? Visibility.Visible : Visibility.Collapsed;
+            PanelReports.Visibility = section == "Reports" ? Visibility.Visible : Visibility.Collapsed;
 
-            // Обновить стиль кнопок навигации
-            BtnJournal.Style        = section == "Journal"        ? FindResource("NavButtonActive") as Style : FindResource("NavButton") as Style;
-            BtnCounterparties.Style = section == "Counterparties" ? FindResource("NavButtonActive") as Style : FindResource("NavButton") as Style;
-            BtnAccounts.Style       = section == "Accounts"       ? FindResource("NavButtonActive") as Style : FindResource("NavButton") as Style;
-            BtnReports.Style        = section == "Reports"        ? FindResource("NavButtonActive") as Style : FindResource("NavButton") as Style;
+            BtnJournal.Style = (Style)FindResource(section == "Journal" ? "NavButtonActive" : "NavButton");
+            BtnCounterparties.Style = (Style)FindResource(section == "Counterparties" ? "NavButtonActive" : "NavButton");
+            BtnAccounts.Style = (Style)FindResource(section == "Accounts" ? "NavButtonActive" : "NavButton");
+            BtnReports.Style = (Style)FindResource(section == "Reports" ? "NavButtonActive" : "NavButton");
         }
 
-        // ─── ЖУРНАЛ: добавление ──────────────────────────────────────────
         private void BtnAddEntry_Click(object sender, RoutedEventArgs e)
         {
-            _editingEntry = new JournalEntry
-            {
-                Id   = _nextId,
-                Date = DateTime.Today
-            };
+            _editingEntry = new JournalEntry { Id = _nextId, Date = DateTime.Today };
             _isNewEntry = true;
             ShowEntryForm(_editingEntry);
         }
 
         private void GridJournal_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (GridJournal.SelectedItem is JournalEntry entry)
-            {
-                _editingEntry = entry;
-                _isNewEntry   = false;
-                ShowEntryForm(entry);
-            }
+            if (GridJournal.SelectedItem is not JournalEntry entry) return;
+            _editingEntry = entry;
+            _isNewEntry = false;
+            ShowEntryForm(entry);
         }
 
         private void ShowEntryForm(JournalEntry entry)
         {
-            PickDate.SelectedDate   = entry.Date;
-            TxtDebit.Text           = entry.DebitAccount;
-            TxtCredit.Text          = entry.CreditAccount;
-            TxtCounterparty.Text    = entry.Counterparty;
-            TxtAmount.Text          = entry.Amount > 0 ? entry.Amount.ToString("N2") : "";
-            TxtDescription.Text     = entry.Description;
+            PickDate.SelectedDate = entry.Date;
+            TxtDebit.Text = entry.DebitAccount;
+            TxtCredit.Text = entry.CreditAccount;
+            TxtCounterparty.Text = entry.Counterparty;
+            TxtCounterpartyInn.Text = entry.CounterpartyInn;
+            TxtCounterpartyBank.Text = entry.CounterpartyBankAccount;
+            TxtAmount.Text = entry.Amount > 0 ? entry.Amount.ToString("N2") : "";
+            TxtDescription.Text = entry.Description;
             PanelEntryEdit.Visibility = Visibility.Visible;
-            TxtDebit.Focus();
         }
 
         private void BtnSaveEntry_Click(object sender, RoutedEventArgs e)
         {
             if (_editingEntry == null) return;
+            if (PickDate.SelectedDate == null) { ShowStatus("Укажите дату операции", true); return; }
+            if (string.IsNullOrWhiteSpace(TxtDebit.Text)) { ShowStatus("Укажите счёт дебета", true); return; }
+            if (string.IsNullOrWhiteSpace(TxtCredit.Text)) { ShowStatus("Укажите счёт кредита", true); return; }
+            if (!TryParseAmount(TxtAmount.Text, out decimal amount) || amount <= 0) { ShowStatus("Введите корректную сумму", true); return; }
 
-            // Валидация
-            if (PickDate.SelectedDate == null)
-            { ShowStatus("Укажите дату операции", isError: true); return; }
-            if (string.IsNullOrWhiteSpace(TxtDebit.Text))
-            { ShowStatus("Укажите счёт дебета", isError: true); return; }
-            if (string.IsNullOrWhiteSpace(TxtCredit.Text))
-            { ShowStatus("Укажите счёт кредита", isError: true); return; }
-            if (!decimal.TryParse(TxtAmount.Text.Replace(" ", "").Replace(",", "."),
-                System.Globalization.NumberStyles.Any,
-                System.Globalization.CultureInfo.InvariantCulture,
-                out decimal amount) || amount <= 0)
-            { ShowStatus("Введите корректную сумму", isError: true); return; }
-
-            _editingEntry.Date          = PickDate.SelectedDate.Value;
-            _editingEntry.DebitAccount  = TxtDebit.Text.Trim();
+            _editingEntry.Date = PickDate.SelectedDate.Value;
+            _editingEntry.DebitAccount = TxtDebit.Text.Trim();
             _editingEntry.CreditAccount = TxtCredit.Text.Trim();
-            _editingEntry.Counterparty  = TxtCounterparty.Text.Trim();
-            _editingEntry.Amount        = amount;
-            _editingEntry.Description   = TxtDescription.Text.Trim();
+            _editingEntry.Counterparty = TxtCounterparty.Text.Trim();
+            _editingEntry.CounterpartyInn = TxtCounterpartyInn.Text.Trim();
+            _editingEntry.CounterpartyBankAccount = TxtCounterpartyBank.Text.Trim();
+            _editingEntry.Amount = amount;
+            _editingEntry.Description = TxtDescription.Text.Trim();
 
             if (_isNewEntry)
             {
                 _journal.Add(_editingEntry);
                 _nextId++;
-                // Если контрагент новый — добавить в справочник
                 AutoRegisterCounterparty(_editingEntry.Counterparty);
             }
 
             PanelEntryEdit.Visibility = Visibility.Collapsed;
-            MarkDirty();
-            UpdateJournalCount();
-            ShowStatus($"Операция #{_editingEntry.Id} сохранена");
             _editingEntry = null;
+            UpdateJournalCount();
+            MarkDirty();
+            ShowStatus("Операция сохранена");
         }
 
         private void BtnDeleteEntry_Click(object sender, RoutedEventArgs e)
@@ -178,13 +159,12 @@ namespace BuhUchet
             if (_editingEntry == null) return;
             if (!_isNewEntry)
             {
-                var r = MessageBox.Show($"Удалить операцию #{_editingEntry.Id}?",
-                    "Подтверждение", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                var r = MessageBox.Show($"Удалить операцию #{_editingEntry.Id}?", "Подтверждение", MessageBoxButton.YesNo, MessageBoxImage.Question);
                 if (r != MessageBoxResult.Yes) return;
                 _journal.Remove(_editingEntry);
-                MarkDirty();
                 UpdateJournalCount();
-                ShowStatus($"Операция удалена");
+                MarkDirty();
+                ShowStatus("Операция удалена");
             }
             PanelEntryEdit.Visibility = Visibility.Collapsed;
             _editingEntry = null;
@@ -193,266 +173,361 @@ namespace BuhUchet
         private void BtnCancelEntry_Click(object sender, RoutedEventArgs e)
         {
             PanelEntryEdit.Visibility = Visibility.Collapsed;
-            GridJournal.SelectedItem  = null;
             _editingEntry = null;
+            GridJournal.SelectedItem = null;
         }
 
         private void AutoRegisterCounterparty(string name)
         {
             if (string.IsNullOrWhiteSpace(name)) return;
-            if (!_counterparties.Any(c => c.Name.Equals(name, StringComparison.OrdinalIgnoreCase)))
-            {
-                _counterparties.Add(new Counterparty { Name = name, Type = "Прочее" });
-            }
+            if (_counterparties.Any(c => c.Name.Equals(name, StringComparison.OrdinalIgnoreCase))) return;
+            _counterparties.Add(new Counterparty { Name = name, Type = "Прочее" });
         }
 
-        // ─── ПОИСК по журналу ────────────────────────────────────────────
-        private void TxtSearch_TextChanged(object sender, TextChangedEventArgs e)
+        private void ApplyCounterpartyToEntryByName(string name)
         {
-            string q = TxtSearch.Text.Trim().ToLower();
-            if (string.IsNullOrWhiteSpace(q))
+            name = (name ?? "").Trim();
+            var cp = _counterparties.FirstOrDefault(c => c.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
+            TxtCounterpartyInn.Text = cp?.Inn ?? "";
+            TxtCounterpartyBank.Text = cp?.BankAccount ?? "";
+        }
+
+        private void TxtSearch_TextChanged(object sender, TextChangedEventArgs e)
+            => ApplyJournalFilter();
+
+        private void JournalFilter_Changed(object sender, SelectionChangedEventArgs e)
+            => ApplyJournalFilter();
+
+        private void ApplyJournalFilter()
+        {
+            string q = TxtSearch.Text.Trim();
+            DateTime? from = PickJournalFrom.SelectedDate?.Date;
+            DateTime? to = PickJournalTo.SelectedDate?.Date;
+
+            var filtered = _journal.Where(en =>
             {
-                GridJournal.ItemsSource = _journal;
-            }
-            else
-            {
-                GridJournal.ItemsSource = _journal.Where(en =>
+                bool matchesText = string.IsNullOrWhiteSpace(q) ||
                     en.Counterparty.Contains(q, StringComparison.OrdinalIgnoreCase) ||
-                    en.Description.Contains(q, StringComparison.OrdinalIgnoreCase)  ||
+                    en.CounterpartyInn.Contains(q, StringComparison.OrdinalIgnoreCase) ||
+                    en.CounterpartyBankAccount.Contains(q, StringComparison.OrdinalIgnoreCase) ||
+                    en.Description.Contains(q, StringComparison.OrdinalIgnoreCase) ||
                     en.DebitAccount.Contains(q, StringComparison.OrdinalIgnoreCase) ||
-                    en.CreditAccount.Contains(q, StringComparison.OrdinalIgnoreCase)||
-                    en.Date.ToString("dd.MM.yyyy").Contains(q)
-                ).ToList();
-            }
+                    en.CreditAccount.Contains(q, StringComparison.OrdinalIgnoreCase) ||
+                    en.Date.ToString("dd.MM.yyyy").Contains(q);
+
+                bool matchesFrom = !from.HasValue || en.Date.Date >= from.Value;
+                bool matchesTo = !to.HasValue || en.Date.Date <= to.Value;
+                return matchesText && matchesFrom && matchesTo;
+            }).ToList();
+
+            GridJournal.ItemsSource = filtered;
             UpdateJournalCount();
         }
 
-        // ─── КОНТРАГЕНТЫ ─────────────────────────────────────────────────
         private void BtnAddCounterparty_Click(object sender, RoutedEventArgs e)
         {
             _editingCp = new Counterparty();
-            _isNewCp   = true;
+            _isNewCp = true;
             ShowCpForm(_editingCp);
         }
 
         private void GridCounterparties_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (GridCounterparties.SelectedItem is Counterparty cp)
-            {
-                _editingCp = cp;
-                _isNewCp   = false;
-                ShowCpForm(cp);
-            }
+            if (GridCounterparties.SelectedItem is not Counterparty cp) return;
+            _editingCp = cp;
+            _isNewCp = false;
+            ShowCpForm(cp);
         }
 
         private void ShowCpForm(Counterparty cp)
         {
-            TxtCpName.Text       = cp.Name;
-            TxtCpInn.Text        = cp.Inn;
-            CbCpType.SelectedItem = CbCpType.Items.Cast<ComboBoxItem>()
-                .FirstOrDefault(i => i.Content.ToString() == cp.Type);
+            TxtCpName.Text = cp.Name;
+            TxtCpInn.Text = cp.Inn;
+            TxtCpBankAccount.Text = cp.BankAccount;
+            TxtCpPersonalAccount.Text = cp.PersonalAccount;
+            CbCpType.SelectedItem = CbCpType.Items.Cast<ComboBoxItem>().FirstOrDefault(i => i.Content?.ToString() == cp.Type);
             PanelCpEdit.Visibility = Visibility.Visible;
-            TxtCpName.Focus();
         }
 
         private void BtnSaveCp_Click(object sender, RoutedEventArgs e)
         {
             if (_editingCp == null) return;
-            if (string.IsNullOrWhiteSpace(TxtCpName.Text))
-            { ShowStatus("Введите наименование контрагента", isError: true); return; }
+            if (string.IsNullOrWhiteSpace(TxtCpName.Text)) { ShowStatus("Введите наименование контрагента", true); return; }
+
+            bool isExisting = !_isNewCp;
+            string oldName = _editingCp.Name;
 
             _editingCp.Name = TxtCpName.Text.Trim();
-            _editingCp.Inn  = TxtCpInn.Text.Trim();
-            _editingCp.Type = (CbCpType.SelectedItem as ComboBoxItem)?.Content.ToString() ?? "Прочее";
+            _editingCp.Inn = TxtCpInn.Text.Trim();
+            _editingCp.BankAccount = TxtCpBankAccount.Text.Trim();
+            _editingCp.PersonalAccount = TxtCpPersonalAccount.Text.Trim();
+            _editingCp.Type = (CbCpType.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? "Прочее";
 
             if (_isNewCp) _counterparties.Add(_editingCp);
+
+            // Если правили существующего контрагента — обновить связанные записи журнала,
+            // чтобы ИНН/банк.счёт отображались сразу и сохранялись в data.json.
+            if (isExisting)
+                SyncJournalEntriesForCounterparty(oldName, _editingCp);
+
             PanelCpEdit.Visibility = Visibility.Collapsed;
-            MarkDirty();
-            ShowStatus($"Контрагент «{_editingCp.Name}» сохранён");
             _editingCp = null;
+            MarkDirty();
+            ShowStatus("Контрагент сохранён");
+        }
+
+        private void SyncJournalEntriesForCounterparty(string oldName, Counterparty cp)
+        {
+            string newName = (cp.Name ?? "").Trim();
+            if (string.IsNullOrWhiteSpace(oldName) && string.IsNullOrWhiteSpace(newName)) return;
+
+            foreach (var entry in _journal)
+            {
+                bool nameMatchesOld = !string.IsNullOrWhiteSpace(oldName) &&
+                                      entry.Counterparty.Equals(oldName, StringComparison.OrdinalIgnoreCase);
+                bool nameMatchesNew = !string.IsNullOrWhiteSpace(newName) &&
+                                      entry.Counterparty.Equals(newName, StringComparison.OrdinalIgnoreCase);
+
+                if (!nameMatchesOld && !nameMatchesNew) continue;
+
+                // Если переименовали — подтянуть имя тоже
+                if (nameMatchesOld && !string.IsNullOrWhiteSpace(newName))
+                    entry.Counterparty = newName;
+
+                entry.CounterpartyInn = cp.Inn ?? "";
+                entry.CounterpartyBankAccount = cp.BankAccount ?? "";
+            }
+
+            // Если сейчас открыта форма записи — сразу обновить поля
+            ApplyCounterpartyToEntryByName(TxtCounterparty.Text);
+            ApplyJournalFilter();
+        }
+
+        private void BtnJournalReset_Click(object sender, RoutedEventArgs e)
+        {
+            PickJournalFrom.SelectedDate = null;
+            PickJournalTo.SelectedDate = null;
+            ApplyJournalFilter();
         }
 
         private void BtnDeleteCp_Click(object sender, RoutedEventArgs e)
         {
             if (_editingCp == null || _isNewCp) return;
-            var r = MessageBox.Show($"Удалить «{_editingCp.Name}»?",
-                "Подтверждение", MessageBoxButton.YesNo, MessageBoxImage.Question);
+            var r = MessageBox.Show($"Удалить «{_editingCp.Name}»?", "Подтверждение", MessageBoxButton.YesNo, MessageBoxImage.Question);
             if (r != MessageBoxResult.Yes) return;
             _counterparties.Remove(_editingCp);
             PanelCpEdit.Visibility = Visibility.Collapsed;
+            _editingCp = null;
             MarkDirty();
             ShowStatus("Контрагент удалён");
-            _editingCp = null;
         }
 
-        // ─── ОТЧЁТЫ / ОСВ ────────────────────────────────────────────────
         private void BtnBuildOsv_Click(object sender, RoutedEventArgs e)
         {
             if (PickOsvFrom.SelectedDate == null || PickOsvTo.SelectedDate == null)
-            { ShowStatus("Укажите период", isError: true); return; }
+            {
+                ShowStatus("Укажите период", true);
+                return;
+            }
 
             var from = PickOsvFrom.SelectedDate.Value;
-            var to   = PickOsvTo.SelectedDate.Value;
-
+            var to = PickOsvTo.SelectedDate.Value;
             var rows = _dataService.BuildOsv(_journal.ToList(), _accounts.ToList(), from, to);
             GridOsv.ItemsSource = rows;
 
-            // Итоги
-            decimal sumTurnDt  = rows.Sum(r => r.TurnDebit);
-            decimal sumTurnCt  = rows.Sum(r => r.TurnCredit);
-            decimal sumCloseDt = rows.Sum(r => r.CloseDebit);
-            decimal sumCloseCt = rows.Sum(r => r.CloseCredit);
-
             TxtOsvTotals.Text =
-                $"ИТОГО: Оборот Дт = {sumTurnDt:N2}  |  " +
-                $"Оборот Кт = {sumTurnCt:N2}  |  " +
-                $"Сальдо кон. Дт = {sumCloseDt:N2}  |  " +
-                $"Сальдо кон. Кт = {sumCloseCt:N2}";
+                $"ИТОГО: Оборот Дт = {rows.Sum(r => r.TurnDebit):N2}  |  " +
+                $"Оборот Кт = {rows.Sum(r => r.TurnCredit):N2}  |  " +
+                $"Сальдо кон. Дт = {rows.Sum(r => r.CloseDebit):N2}  |  " +
+                $"Сальдо кон. Кт = {rows.Sum(r => r.CloseCredit):N2}";
 
-            ShowStatus($"ОСВ сформирована: {rows.Count} счетов за {from:dd.MM.yyyy} – {to:dd.MM.yyyy}");
+            ShowStatus($"ОСВ сформирована: {rows.Count} счетов");
         }
 
-        // ─── ФАЙЛОВЫЕ ОПЕРАЦИИ ────────────────────────────────────────────
-        private void BtnNew_Click(object sender, RoutedEventArgs e)
+        private void BtnExportOsv_Click(object sender, RoutedEventArgs e)
         {
-            if (_isDirty && !ConfirmDiscard()) return;
-            _journal.Clear();
-            _counterparties.Clear();
-            _accounts = new ObservableCollection<AccountPlan>(DataService.DefaultAccounts());
-            _nextId = 1;
-            _currentFilePath = null;
-            _isDirty = false;
-            BindGrids();
-            UpdateStatusBar();
-            ShowStatus("Создан новый файл");
-        }
-
-        private void BtnOpen_Click(object sender, RoutedEventArgs e)
-        {
-            if (_isDirty && !ConfirmDiscard()) return;
-            var dlg = new OpenFileDialog
+            if (PickOsvFrom.SelectedDate == null || PickOsvTo.SelectedDate == null)
             {
-                Filter = "Файлы БухУчёт (*.buh)|*.buh|JSON-файлы (*.json)|*.json|Все файлы (*.*)|*.*",
-                Title  = "Открыть файл данных"
+                ShowStatus("Укажите период для экспорта", true);
+                return;
+            }
+
+            var from = PickOsvFrom.SelectedDate.Value;
+            var to = PickOsvTo.SelectedDate.Value;
+            var rows = (GridOsv.ItemsSource as IEnumerable<OsvRow>)?.ToList() ??
+                       _dataService.BuildOsv(_journal.ToList(), _accounts.ToList(), from, to);
+            var usedCounterparties = _journal
+                .Where(j => j.Date >= from && j.Date <= to && !string.IsNullOrWhiteSpace(j.Counterparty))
+                .Select(j => j.Counterparty.Trim())
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .Select(name =>
+                {
+                    var cp = _counterparties.FirstOrDefault(c => c.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
+                    return new
+                    {
+                        Name = name,
+                        Inn = cp?.Inn ?? "",
+                        PersonalAccount = cp?.PersonalAccount ?? ""
+                    };
+                })
+                .ToList();
+
+            var reportData = new
+            {
+                Report = "ОСВ",
+                PeriodFrom = from.ToString("yyyy-MM-dd"),
+                PeriodTo = to.ToString("yyyy-MM-dd"),
+                Counterparties = usedCounterparties,
+                Rows = rows,
+                Totals = new
+                {
+                    TurnDebit = rows.Sum(r => r.TurnDebit),
+                    TurnCredit = rows.Sum(r => r.TurnCredit),
+                    CloseDebit = rows.Sum(r => r.CloseDebit),
+                    CloseCredit = rows.Sum(r => r.CloseCredit)
+                }
             };
-            if (dlg.ShowDialog() != true) return;
 
-            try
-            {
-                var save = _dataService.Load(dlg.FileName);
-                _journal        = new ObservableCollection<JournalEntry>(save.Journal);
-                _counterparties = new ObservableCollection<Counterparty>(save.Counterparties);
-                _accounts       = new ObservableCollection<AccountPlan>(save.Accounts);
-                _nextId = _journal.Count > 0 ? _journal.Max(j => j.Id) + 1 : 1;
-                _currentFilePath = dlg.FileName;
-                _isDirty = false;
-                BindGrids();
-                UpdateStatusBar();
-                ShowStatus($"Файл открыт: {System.IO.Path.GetFileName(dlg.FileName)}");
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Ошибка открытия файла:\n{ex.Message}", "Ошибка",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-        }
-
-        private void BtnSave_Click(object sender, RoutedEventArgs e)
-        {
-            if (_currentFilePath == null) { BtnSaveAs_Click(sender, e); return; }
-            SaveToPath(_currentFilePath);
-        }
-
-        private void BtnSaveAs_Click(object sender, RoutedEventArgs e)
-        {
             var dlg = new SaveFileDialog
             {
-                Filter           = "Файлы БухУчёт (*.buh)|*.buh|JSON-файлы (*.json)|*.json",
-                Title            = "Сохранить файл данных",
-                DefaultExt       = "buh",
-                FileName         = "данные_бухучёт"
+                Filter = "JSON-файл (*.json)|*.json",
+                Title = "Экспорт ОСВ",
+                DefaultExt = "json",
+                FileName = $"ОСВ_{from:yyyyMMdd}_{to:yyyyMMdd}"
             };
             if (dlg.ShowDialog() != true) return;
-            SaveToPath(dlg.FileName);
-        }
 
-        private void SaveToPath(string path)
-        {
             try
             {
-                var save = new SaveFile
-                {
-                    Journal        = _journal.ToList(),
-                    Counterparties = _counterparties.ToList(),
-                    Accounts       = _accounts.ToList()
-                };
-                _dataService.Save(path, save);
-                _currentFilePath = path;
-                _isDirty = false;
-                UpdateStatusBar();
-                ShowStatus($"Сохранено: {System.IO.Path.GetFileName(path)}");
+                File.WriteAllText(dlg.FileName, JsonConvert.SerializeObject(reportData, Formatting.Indented));
+                ShowStatus($"Экспортировано: {Path.GetFileName(dlg.FileName)}");
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ошибка сохранения:\n{ex.Message}", "Ошибка",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
+                ShowStatus($"Ошибка экспорта: {ex.Message}", true);
             }
         }
 
-        // ─── Вспомогательные ─────────────────────────────────────────────
+        private void BtnLoadOsv_Click(object sender, RoutedEventArgs e)
+        {
+            var dlg = new OpenFileDialog
+            {
+                Filter = "JSON-файл (*.json)|*.json",
+                Title = "Загрузить отчёт ОСВ"
+            };
+            if (dlg.ShowDialog() != true) return;
+
+            try
+            {
+                string json = File.ReadAllText(dlg.FileName);
+                var root = JObject.Parse(json);
+
+                var rows = root["Rows"]?.ToObject<List<OsvRow>>() ?? new List<OsvRow>();
+                GridOsv.ItemsSource = rows;
+
+                DateTime parsedFrom;
+                DateTime parsedTo;
+                if (DateTime.TryParse(root["PeriodFrom"]?.ToString(), out parsedFrom))
+                    PickOsvFrom.SelectedDate = parsedFrom;
+                if (DateTime.TryParse(root["PeriodTo"]?.ToString(), out parsedTo))
+                    PickOsvTo.SelectedDate = parsedTo;
+
+                var totals = root["Totals"];
+                decimal sumTurnDt = totals?["TurnDebit"]?.Value<decimal>() ?? rows.Sum(r => r.TurnDebit);
+                decimal sumTurnCt = totals?["TurnCredit"]?.Value<decimal>() ?? rows.Sum(r => r.TurnCredit);
+                decimal sumCloseDt = totals?["CloseDebit"]?.Value<decimal>() ?? rows.Sum(r => r.CloseDebit);
+                decimal sumCloseCt = totals?["CloseCredit"]?.Value<decimal>() ?? rows.Sum(r => r.CloseCredit);
+
+                TxtOsvTotals.Text =
+                    $"ИТОГО: Оборот Дт = {sumTurnDt:N2}  |  " +
+                    $"Оборот Кт = {sumTurnCt:N2}  |  " +
+                    $"Сальдо кон. Дт = {sumCloseDt:N2}  |  " +
+                    $"Сальдо кон. Кт = {sumCloseCt:N2}";
+
+                ShowStatus($"Отчёт загружен: {Path.GetFileName(dlg.FileName)}");
+            }
+            catch (Exception ex)
+            {
+                ShowStatus($"Ошибка загрузки отчёта: {ex.Message}", true);
+            }
+        }
+
         private void MarkDirty()
         {
             _isDirty = true;
             UpdateStatusBar();
+            ScheduleSave();
+        }
+
+        private void ScheduleSave()
+        {
+            _saveDebounceTimer ??= new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(600) };
+            _saveDebounceTimer.Stop();
+            _saveDebounceTimer.Tick -= SaveDebounceTimer_Tick;
+            _saveDebounceTimer.Tick += SaveDebounceTimer_Tick;
+            _saveDebounceTimer.Start();
+        }
+
+        private void SaveDebounceTimer_Tick(object? sender, EventArgs e)
+        {
+            _saveDebounceTimer?.Stop();
+            TrySaveData();
+        }
+
+        private void TrySaveData()
+        {
+            if (!_isDirty) return;
+            try
+            {
+                var data = new SaveFile
+                {
+                    Journal = _journal.ToList(),
+                    Counterparties = _counterparties.ToList(),
+                    Accounts = _accounts.ToList(),
+                    SavedAt = DateTime.Now
+                };
+                AppDataStore.Save(_dataPath, data);
+                _isDirty = false;
+                _lastSavedAt = data.SavedAt;
+                UpdateStatusBar();
+            }
+            catch (Exception ex)
+            {
+                ShowStatus($"Ошибка автосохранения: {ex.Message}", true);
+            }
         }
 
         private void UpdateStatusBar()
         {
-            TxtFileName.Text = _currentFilePath != null
-                ? System.IO.Path.GetFileName(_currentFilePath)
-                : "Без имени (не сохранено)";
-
-            TxtSavedAt.Text = _isDirty ? "● Есть несохранённые изменения" : "Сохранено";
+            TxtFileName.Text = "data.json";
+            TxtSavedAt.Text = _isDirty
+                ? "● Есть несохранённые изменения (автосохранение)"
+                : _lastSavedAt.HasValue ? $"Сохранено: {_lastSavedAt:dd.MM.yyyy HH:mm}" : "Сохранено";
         }
 
         private void UpdateJournalCount()
         {
-            int total    = _journal.Count;
-            decimal sum  = _journal.Sum(e => e.Amount);
+            int total = _journal.Count;
+            decimal sum = _journal.Sum(e => e.Amount);
             TxtJournalCount.Text = $"{total} записей  |  Итого: {sum:N2} руб.";
         }
 
         private void ShowStatus(string message, bool isError = false)
         {
             TxtStatus.Text = isError ? $"⚠ {message}" : $"✓ {message}";
-            TxtStatus.Foreground = isError
-                ? System.Windows.Media.Brushes.LightSalmon
-                : System.Windows.Media.Brushes.LightGreen;
+            TxtStatus.Foreground = isError ? System.Windows.Media.Brushes.LightSalmon : System.Windows.Media.Brushes.LightGreen;
         }
 
-        private bool ConfirmDiscard()
+        private static bool TryParseAmount(string text, out decimal amount)
         {
-            var r = MessageBox.Show(
-                "Есть несохранённые изменения. Продолжить без сохранения?",
-                "Несохранённые изменения",
-                MessageBoxButton.YesNo,
-                MessageBoxImage.Warning);
-            return r == MessageBoxResult.Yes;
+            text = (text ?? "").Trim().Replace(" ", "");
+            if (decimal.TryParse(text, NumberStyles.Any, CultureInfo.GetCultureInfo("ru-RU"), out amount)) return true;
+            return decimal.TryParse(text.Replace(",", "."), NumberStyles.Any, CultureInfo.InvariantCulture, out amount);
         }
 
         protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
         {
-            if (_isDirty)
-            {
-                var r = MessageBox.Show(
-                    "Сохранить изменения перед выходом?",
-                    "Выход",
-                    MessageBoxButton.YesNoCancel,
-                    MessageBoxImage.Question);
-
-                if (r == MessageBoxResult.Cancel)      { e.Cancel = true; return; }
-                if (r == MessageBoxResult.Yes)         BtnSave_Click(this, new RoutedEventArgs());
-            }
+            TrySaveData();
             base.OnClosing(e);
         }
     }

@@ -5,14 +5,24 @@ using System.Runtime.CompilerServices;
 
 namespace BuhUchet
 {
+    public abstract class NotifyObject : INotifyPropertyChanged
+    {
+        public event PropertyChangedEventHandler? PropertyChanged;
+
+        protected void OnPropertyChanged([CallerMemberName] string? name = null)
+            => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+    }
+
     // ─── Проводка (журнальная запись) ───────────────────────────────────────
-    public class JournalEntry : INotifyPropertyChanged
+    public class JournalEntry : NotifyObject
     {
         private int _id;
         private DateTime _date;
         private string _debitAccount  = "";
         private string _creditAccount = "";
         private string _counterparty  = "";
+        private string _counterpartyInn = "";
+        private string _counterpartyBankAccount = "";
         private string _description   = "";
         private decimal _amount;
 
@@ -21,28 +31,38 @@ namespace BuhUchet
         public string   DebitAccount   { get => _debitAccount;   set { _debitAccount = value;   OnPropertyChanged(); } }
         public string   CreditAccount  { get => _creditAccount;  set { _creditAccount = value;  OnPropertyChanged(); } }
         public string   Counterparty   { get => _counterparty;   set { _counterparty = value;   OnPropertyChanged(); } }
+        public string   CounterpartyInn { get => _counterpartyInn; set { _counterpartyInn = value; OnPropertyChanged(); } }
+        public string   CounterpartyBankAccount { get => _counterpartyBankAccount; set { _counterpartyBankAccount = value; OnPropertyChanged(); } }
         public string   Description    { get => _description;    set { _description = value;    OnPropertyChanged(); } }
         public decimal  Amount         { get => _amount;         set { _amount = value;         OnPropertyChanged(); } }
-
-        public event PropertyChangedEventHandler? PropertyChanged;
-        protected void OnPropertyChanged([CallerMemberName] string? name = null)
-            => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
     }
 
     // ─── Контрагент ─────────────────────────────────────────────────────────
-    public class Counterparty
+    public class Counterparty : NotifyObject
     {
-        public string Name { get; set; } = "";
-        public string Inn  { get; set; } = "";
-        public string Type { get; set; } = ""; // Поставщик / Покупатель / Прочее
+        private string _name = "";
+        private string _inn = "";
+        private string _bankAccount = "";
+        private string _personalAccount = "";
+        private string _type = "";
+
+        public string Name            { get => _name;            set { _name = value;            OnPropertyChanged(); } }
+        public string Inn             { get => _inn;             set { _inn = value;             OnPropertyChanged(); } }
+        public string BankAccount     { get => _bankAccount;     set { _bankAccount = value;     OnPropertyChanged(); } } // номер банковского счёта
+        public string PersonalAccount { get => _personalAccount; set { _personalAccount = value; OnPropertyChanged(); } } // номер лицевого счёта
+        public string Type            { get => _type;            set { _type = value;            OnPropertyChanged(); } } // Поставщик / Покупатель / Прочее
     }
 
     // ─── Счёт плана счетов ──────────────────────────────────────────────────
-    public class AccountPlan
+    public class AccountPlan : NotifyObject
     {
-        public string Code        { get; set; } = "";
-        public string Name        { get; set; } = "";
-        public string Type        { get; set; } = ""; // Актив / Пассив / АП
+        private string _code = "";
+        private string _name = "";
+        private string _type = "";
+
+        public string Code        { get => _code; set { _code = value; OnPropertyChanged(); } }
+        public string Name        { get => _name; set { _name = value; OnPropertyChanged(); } }
+        public string Type        { get => _type; set { _type = value; OnPropertyChanged(); } } // Актив / Пассив / АП
     }
 
     // ─── Строка ОСВ (оборотно-сальдовая ведомость) ──────────────────────────

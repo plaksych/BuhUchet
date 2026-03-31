@@ -3,9 +3,10 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:local="clr-namespace:BuhUchet"
         Title="БухУчёт — Бухгалтерское приложение"
-        Height="750" Width="1200"
+        Height="720" Width="1440"
         MinHeight="600" MinWidth="900"
         Background="#F0F2F5"
+        Icon="pack://siteoforigin:,,,/Assets/appicon.png"
         WindowStartupLocation="CenterScreen">
 
     <Window.Resources>
@@ -171,21 +172,6 @@
                     </StackPanel>
                 </Border>
 
-                <!-- Меню файла -->
-                <Border DockPanel.Dock="Top" Padding="6,12,6,4">
-                    <StackPanel>
-                        <TextBlock Text="ФАЙЛ" Foreground="#4A6D8C"
-                                   FontSize="10" FontWeight="Bold"
-                                   Margin="10,0,0,6"/>
-                        <Button x:Name="BtnNew"    Content="🆕  Новый файл"    Style="{StaticResource NavButton}" Click="BtnNew_Click"/>
-                        <Button x:Name="BtnOpen"   Content="📂  Открыть..."    Style="{StaticResource NavButton}" Click="BtnOpen_Click"/>
-                        <Button x:Name="BtnSave"   Content="💾  Сохранить"     Style="{StaticResource NavButton}" Click="BtnSave_Click"/>
-                        <Button x:Name="BtnSaveAs" Content="💾  Сохранить как..." Style="{StaticResource NavButton}" Click="BtnSaveAs_Click"/>
-                    </StackPanel>
-                </Border>
-
-                <Separator Background="#2E4D6B" Margin="10,4"/>
-
                 <!-- Навигация -->
                 <Border Padding="6,4">
                     <StackPanel>
@@ -203,7 +189,7 @@
                 <Border DockPanel.Dock="Bottom" Padding="14,10"
                         BorderBrush="#2E4D6B" BorderThickness="0,1,0,0">
                     <StackPanel>
-                        <TextBlock x:Name="TxtFileName" Text="Без имени"
+                        <TextBlock x:Name="TxtFileName" Text="data.json"
                                    Foreground="#6B9EC7" FontSize="10"
                                    TextTrimming="CharacterEllipsis"/>
                         <TextBlock x:Name="TxtSavedAt" Text="Не сохранено"
@@ -215,9 +201,13 @@
 
         <!-- ═══ MAIN CONTENT ════════════════════════════════════════════════ -->
         <Grid Grid.Column="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
 
             <!-- ── ЖУРНАЛ ОПЕРАЦИЙ ──────────────────────────────────────── -->
-            <Grid x:Name="PanelJournal">
+            <Grid x:Name="PanelJournal" Grid.Row="0">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="*"/>
@@ -239,6 +229,34 @@
                                        FontSize="12" Foreground="#6C757D" Margin="0,2,0,0"/>
                         </StackPanel>
                         <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock Text="с" VerticalAlignment="Center" Margin="0,0,6,0"
+                                       FontSize="11" Foreground="#6C757D"/>
+                            <DatePicker x:Name="PickJournalFrom" Width="120" Margin="0,0,8,0"
+                                        FontSize="12" SelectedDateChanged="JournalFilter_Changed"/>
+                            <TextBlock Text="по" VerticalAlignment="Center" Margin="0,0,6,0"
+                                       FontSize="11" Foreground="#6C757D"/>
+                            <DatePicker x:Name="PickJournalTo" Width="120" Margin="0,0,8,0"
+                                        FontSize="12" SelectedDateChanged="JournalFilter_Changed"/>
+                            <Button x:Name="BtnJournalReset" Content="Сброс"
+                                    Margin="0,0,10,0"
+                                    Padding="10,7" FontSize="12"
+                                    Click="BtnJournalReset_Click"
+                                    Background="#EDF2F7" Foreground="#4A5568" BorderThickness="0"
+                                    Cursor="Hand">
+                                <Button.Template>
+                                    <ControlTemplate TargetType="Button">
+                                        <Border x:Name="bd" Background="{TemplateBinding Background}" CornerRadius="5">
+                                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                              Margin="{TemplateBinding Padding}"/>
+                                        </Border>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter TargetName="bd" Property="Background" Value="#E2E8F0"/>
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </Button.Template>
+                            </Button>
                             <TextBox x:Name="TxtSearch" Width="220" Margin="0,0,8,0"
                                      Style="{StaticResource FormTextBox}"
                                      TextChanged="TxtSearch_TextChanged">
@@ -304,6 +322,8 @@
                             <ColumnDefinition Width="80"/>
                             <ColumnDefinition Width="80"/>
                             <ColumnDefinition Width="190"/>
+                            <ColumnDefinition Width="140"/>
+                            <ColumnDefinition Width="190"/>
                             <ColumnDefinition Width="110"/>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
@@ -317,8 +337,10 @@
                         <TextBlock Grid.Row="0" Grid.Column="1" Text="Счёт Дт" Style="{StaticResource FormLabel}"/>
                         <TextBlock Grid.Row="0" Grid.Column="2" Text="Счёт Кт" Style="{StaticResource FormLabel}"/>
                         <TextBlock Grid.Row="0" Grid.Column="3" Text="Контрагент (Tab — автодополнение)" Style="{StaticResource FormLabel}"/>
-                        <TextBlock Grid.Row="0" Grid.Column="4" Text="Сумма" Style="{StaticResource FormLabel}"/>
-                        <TextBlock Grid.Row="0" Grid.Column="5" Text="Содержание" Style="{StaticResource FormLabel}"/>
+                        <TextBlock Grid.Row="0" Grid.Column="4" Text="ИНН" Style="{StaticResource FormLabel}"/>
+                        <TextBlock Grid.Row="0" Grid.Column="5" Text="Банк. счёт" Style="{StaticResource FormLabel}"/>
+                        <TextBlock Grid.Row="0" Grid.Column="6" Text="Сумма" Style="{StaticResource FormLabel}"/>
+                        <TextBlock Grid.Row="0" Grid.Column="7" Text="Содержание" Style="{StaticResource FormLabel}"/>
 
                         <DatePicker x:Name="PickDate" Grid.Row="1" Grid.Column="0"
                                     Margin="0,0,8,0" VerticalContentAlignment="Center"
@@ -326,34 +348,24 @@
                         <TextBox x:Name="TxtDebit"       Grid.Row="1" Grid.Column="1" Margin="0,0,8,0" Style="{StaticResource FormTextBox}" ToolTip="Счёт дебета (Tab — автодополнение)"/>
                         <TextBox x:Name="TxtCredit"      Grid.Row="1" Grid.Column="2" Margin="0,0,8,0" Style="{StaticResource FormTextBox}" ToolTip="Счёт кредита (Tab — автодополнение)"/>
                         <TextBox x:Name="TxtCounterparty" Grid.Row="1" Grid.Column="3" Margin="0,0,8,0" Style="{StaticResource FormTextBox}"/>
-                        <TextBox x:Name="TxtAmount"      Grid.Row="1" Grid.Column="4" Margin="0,0,8,0" Style="{StaticResource FormTextBox}"/>
-                        <TextBox x:Name="TxtDescription" Grid.Row="1" Grid.Column="5" Margin="0,0,8,0" Style="{StaticResource FormTextBox}"/>
+                        <TextBox x:Name="TxtCounterpartyInn" Grid.Row="1" Grid.Column="4" Margin="0,0,8,0" Style="{StaticResource FormTextBox}" IsReadOnly="True" Background="#F8FAFC"/>
+                        <TextBox x:Name="TxtCounterpartyBank" Grid.Row="1" Grid.Column="5" Margin="0,0,8,0" Style="{StaticResource FormTextBox}" IsReadOnly="True" Background="#F8FAFC"/>
+                        <TextBox x:Name="TxtAmount"      Grid.Row="1" Grid.Column="6" Margin="0,0,8,0" Style="{StaticResource FormTextBox}"/>
+                        <TextBox x:Name="TxtDescription" Grid.Row="1" Grid.Column="7" Margin="0,0,8,0" Style="{StaticResource FormTextBox}"/>
 
-                        <StackPanel Grid.Row="1" Grid.Column="6" Orientation="Horizontal">
+                        <StackPanel Grid.Row="1" Grid.Column="8" Orientation="Horizontal">
                             <Button Content="✔ Сохранить" Style="{StaticResource ActionButton}"
                                     Margin="0,0,6,0" Click="BtnSaveEntry_Click"/>
                             <Button Content="✖" Style="{StaticResource DangerButton}"
-                                    Width="34" Click="BtnDeleteEntry_Click"
+                                    Width="40" Height="34" Padding="0" FontSize="14" Click="BtnDeleteEntry_Click"
                                     ToolTip="Удалить запись"/>
-                            <Button Content="Отмена" Margin="6,0,0,0"
-                                    Padding="10,7" FontSize="12" Click="BtnCancelEntry_Click"
-                                    Background="#EDF2F7" Foreground="#4A5568" BorderThickness="0">
-                                <Button.Template>
-                                    <ControlTemplate TargetType="Button">
-                                        <Border Background="{TemplateBinding Background}" CornerRadius="5">
-                                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"
-                                                              Margin="{TemplateBinding Padding}"/>
-                                        </Border>
-                                    </ControlTemplate>
-                                </Button.Template>
-                            </Button>
                         </StackPanel>
                     </Grid>
                 </Border>
             </Grid>
 
             <!-- ── КОНТРАГЕНТЫ ──────────────────────────────────────────── -->
-            <Grid x:Name="PanelCounterparties" Visibility="Collapsed">
+            <Grid x:Name="PanelCounterparties" Grid.Row="0" Visibility="Collapsed">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="*"/>
@@ -395,6 +407,8 @@
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="Наименование" Binding="{Binding Name}" Width="*"   IsReadOnly="True"/>
                         <DataGridTextColumn Header="ИНН"          Binding="{Binding Inn}"  Width="130" IsReadOnly="True"/>
+                        <DataGridTextColumn Header="Банк. счёт"   Binding="{Binding BankAccount}" Width="160" IsReadOnly="True"/>
+                        <DataGridTextColumn Header="Лицевой счёт" Binding="{Binding PersonalAccount}" Width="130" IsReadOnly="True"/>
                         <DataGridTextColumn Header="Тип"          Binding="{Binding Type}" Width="120" IsReadOnly="True"/>
                     </DataGrid.Columns>
                 </DataGrid>
@@ -408,6 +422,8 @@
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="130"/>
+                            <ColumnDefinition Width="160"/>
+                            <ColumnDefinition Width="130"/>
                             <ColumnDefinition Width="130"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
@@ -418,11 +434,15 @@
 
                         <TextBlock Grid.Row="0" Grid.Column="0" Text="Наименование" Style="{StaticResource FormLabel}"/>
                         <TextBlock Grid.Row="0" Grid.Column="1" Text="ИНН" Style="{StaticResource FormLabel}"/>
-                        <TextBlock Grid.Row="0" Grid.Column="2" Text="Тип" Style="{StaticResource FormLabel}"/>
+                        <TextBlock Grid.Row="0" Grid.Column="2" Text="Банк. счёт" Style="{StaticResource FormLabel}"/>
+                        <TextBlock Grid.Row="0" Grid.Column="3" Text="Лицевой счёт" Style="{StaticResource FormLabel}"/>
+                        <TextBlock Grid.Row="0" Grid.Column="4" Text="Тип" Style="{StaticResource FormLabel}"/>
 
                         <TextBox x:Name="TxtCpName" Grid.Row="1" Grid.Column="0" Margin="0,0,8,0" Style="{StaticResource FormTextBox}"/>
                         <TextBox x:Name="TxtCpInn"  Grid.Row="1" Grid.Column="1" Margin="0,0,8,0" Style="{StaticResource FormTextBox}"/>
-                        <ComboBox x:Name="CbCpType" Grid.Row="1" Grid.Column="2" Margin="0,0,8,0"
+                        <TextBox x:Name="TxtCpBankAccount" Grid.Row="1" Grid.Column="2" Margin="0,0,8,0" Style="{StaticResource FormTextBox}"/>
+                        <TextBox x:Name="TxtCpPersonalAccount" Grid.Row="1" Grid.Column="3" Margin="0,0,8,0" Style="{StaticResource FormTextBox}"/>
+                        <ComboBox x:Name="CbCpType" Grid.Row="1" Grid.Column="4" Margin="0,0,8,0"
                                   FontSize="12" Padding="6,5"
                                   VerticalContentAlignment="Center">
                             <ComboBoxItem>Поставщик</ComboBoxItem>
@@ -430,18 +450,19 @@
                             <ComboBoxItem>Прочее</ComboBoxItem>
                         </ComboBox>
 
-                        <StackPanel Grid.Row="1" Grid.Column="3" Orientation="Horizontal">
+                        <StackPanel Grid.Row="1" Grid.Column="5" Orientation="Horizontal">
                             <Button Content="✔ Сохранить" Style="{StaticResource ActionButton}"
                                     Margin="0,0,6,0" Click="BtnSaveCp_Click"/>
                             <Button Content="✖" Style="{StaticResource DangerButton}"
-                                    Width="34" Click="BtnDeleteCp_Click" ToolTip="Удалить"/>
+                                    Width="40" Height="34" Padding="0" FontSize="14"
+                                    Click="BtnDeleteCp_Click" ToolTip="Удалить"/>
                         </StackPanel>
                     </Grid>
                 </Border>
             </Grid>
 
             <!-- ── ПЛАН СЧЕТОВ ───────────────────────────────────────────── -->
-            <Grid x:Name="PanelAccounts" Visibility="Collapsed">
+            <Grid x:Name="PanelAccounts" Grid.Row="0" Visibility="Collapsed">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="*"/>
@@ -494,11 +515,12 @@
             </Grid>
 
             <!-- ── ОТЧЁТЫ / ОСВ ─────────────────────────────────────────── -->
-            <Grid x:Name="PanelReports" Visibility="Collapsed">
+            <Grid x:Name="PanelReports" Grid.Row="0" Visibility="Collapsed">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
 
@@ -559,10 +581,21 @@
                     <TextBlock x:Name="TxtOsvTotals"
                                FontSize="12" FontWeight="SemiBold" Foreground="#1A3A5C"/>
                 </Border>
+
+                <!-- Экспорт отчёта -->
+                <Border Grid.Row="4" Background="White" Padding="20,10"
+                        BorderBrush="#E2E8F0" BorderThickness="0,1,0,0">
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                        <Button x:Name="BtnLoadOsv" Content="📂 Загрузить отчёт (JSON)" Style="{StaticResource ActionButton}"
+                                Margin="0,0,8,0" Click="BtnLoadOsv_Click"/>
+                        <Button x:Name="BtnExportOsv" Content="💾 Экспорт ОСВ (JSON)" Style="{StaticResource ActionButton}"
+                                Click="BtnExportOsv_Click"/>
+                    </StackPanel>
+                </Border>
             </Grid>
 
-            <!-- Статусная строка (поверх всего внизу) -->
-            <Border VerticalAlignment="Bottom" Background="#1A3A5C"
+            <!-- Статусная строка (в отдельной строке, не перекрывает контент) -->
+            <Border Grid.Row="1" Background="#1A3A5C"
                     Padding="16,5" Height="26">
                 <TextBlock x:Name="TxtStatus" Text="Готово"
                            Foreground="#A8C7E8" FontSize="11"/>

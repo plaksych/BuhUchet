@@ -1,0 +1,164 @@
+{
+  "Journal": [
+    {
+      "Id": 1,
+      "Date": "2025-01-05",
+      "DebitAccount": "51",
+      "CreditAccount": "62",
+      "Counterparty": "АвтоТранс",
+      "CounterpartyInn": "7723456789",
+      "CounterpartyBankAccount": "40702810900000000004",
+      "Description": "Оплата от покупателя",
+      "Amount": 250000.0
+    },
+    {
+      "Id": 2,
+      "Date": "2025-01-10",
+      "DebitAccount": "60",
+      "CreditAccount": "51",
+      "Counterparty": "Ремсервис ООО",
+      "CounterpartyInn": "7701234567",
+      "CounterpartyBankAccount": "40702810900000000001",
+      "Description": "Оплата поставщику за ремонт",
+      "Amount": 84000.0
+    },
+    {
+      "Id": 3,
+      "Date": "2025-01-15",
+      "DebitAccount": "10",
+      "CreditAccount": "60",
+      "Counterparty": "ТехноСнаб",
+      "CounterpartyInn": "7767890123",
+      "CounterpartyBankAccount": "40702810900000000008",
+      "Description": "Поступление материалов",
+      "Amount": 36500.0
+    },
+    {
+      "Id": 4,
+      "Date": "2025-02-03",
+      "DebitAccount": "26",
+      "CreditAccount": "70",
+      "Counterparty": "",
+      "CounterpartyInn": "",
+      "CounterpartyBankAccount": "",
+      "Description": "Начисление зарплаты АУП",
+      "Amount": 120000.0
+    },
+    {
+      "Id": 5,
+      "Date": "2025-02-03",
+      "DebitAccount": "70",
+      "CreditAccount": "51",
+      "Counterparty": "",
+      "CounterpartyInn": "",
+      "CounterpartyBankAccount": "",
+      "Description": "Выплата зарплаты",
+      "Amount": 120000.0
+    },
+    {
+      "Id": 6,
+      "Date": "2025-02-20",
+      "DebitAccount": "51",
+      "CreditAccount": "62",
+      "Counterparty": "Торговый дом «Север»",
+      "CounterpartyInn": "7745678901",
+      "CounterpartyBankAccount": "40702810900000000006",
+      "Description": "Получена предоплата",
+      "Amount": 175000.0
+    },
+    {
+      "Id": 7,
+      "Date": "2025-03-01",
+      "DebitAccount": "60",
+      "CreditAccount": "51",
+      "Counterparty": "СтройМастер ЗАО",
+      "CounterpartyInn": "7712345678",
+      "CounterpartyBankAccount": "40702810900000000003",
+      "Description": "Оплата строительных работ",
+      "Amount": 55000.0
+    }
+  ],
+  "Counterparties": [
+    {
+      "Name": "Ремсервис ООО",
+      "Inn": "7701234567",
+      "BankAccount": "40702810900000000001",
+      "PersonalAccount": "ЛС-0001",
+      "Type": "Поставщик"
+    },
+    {
+      "Name": "Ремонт-Плюс",
+      "Inn": "7709876543",
+      "BankAccount": "40702810900000000002",
+      "PersonalAccount": "ЛС-0002",
+      "Type": "Поставщик"
+    },
+    {
+      "Name": "СтройМастер ЗАО",
+      "Inn": "7712345678",
+      "BankAccount": "40702810900000000003",
+      "PersonalAccount": "ЛС-0003",
+      "Type": "Поставщик"
+    },
+    {
+      "Name": "АвтоТранс",
+      "Inn": "7723456789",
+      "BankAccount": "40702810900000000004",
+      "PersonalAccount": "ЛС-0101",
+      "Type": "Покупатель"
+    },
+    {
+      "Name": "АвтоЛогистик",
+      "Inn": "7734567890",
+      "BankAccount": "40702810900000000005",
+      "PersonalAccount": "ЛС-0102",
+      "Type": "Покупатель"
+    },
+    {
+      "Name": "Торговый дом «Север»",
+      "Inn": "7745678901",
+      "BankAccount": "40702810900000000006",
+      "PersonalAccount": "ЛС-0103",
+      "Type": "Покупатель"
+    },
+    {
+      "Name": "МедГрупп",
+      "Inn": "7756789012",
+      "BankAccount": "40702810900000000007",
+      "PersonalAccount": "ЛС-0201",
+      "Type": "Прочее"
+    },
+    {
+      "Name": "ТехноСнаб",
+      "Inn": "7767890123",
+      "BankAccount": "40702810900000000008",
+      "PersonalAccount": "ЛС-0301",
+      "Type": "Поставщик"
+    }
+  ],
+  "Accounts": [
+    { "Code": "01", "Name": "Основные средства", "Type": "Актив" },
+    { "Code": "02", "Name": "Амортизация ОС", "Type": "Пассив" },
+    { "Code": "10", "Name": "Материалы", "Type": "Актив" },
+    { "Code": "19", "Name": "НДС по приобретённым ценностям", "Type": "Актив" },
+    { "Code": "20", "Name": "Основное производство", "Type": "Актив" },
+    { "Code": "26", "Name": "Общехозяйственные расходы", "Type": "Актив" },
+    { "Code": "41", "Name": "Товары", "Type": "Актив" },
+    { "Code": "43", "Name": "Готовая продукция", "Type": "Актив" },
+    { "Code": "50", "Name": "Касса", "Type": "Актив" },
+    { "Code": "51", "Name": "Расчётные счета", "Type": "Актив" },
+    { "Code": "60", "Name": "Расчёты с поставщиками", "Type": "АП" },
+    { "Code": "62", "Name": "Расчёты с покупателями", "Type": "АП" },
+    { "Code": "66", "Name": "Краткосрочные кредиты", "Type": "Пассив" },
+    { "Code": "68", "Name": "Расчёты по налогам", "Type": "АП" },
+    { "Code": "69", "Name": "Расчёты по соц. страхованию", "Type": "АП" },
+    { "Code": "70", "Name": "Расчёты с персоналом по оплате труда", "Type": "Пассив" },
+    { "Code": "76", "Name": "Расчёты с прочими контрагентами", "Type": "АП" },
+    { "Code": "80", "Name": "Уставный капитал", "Type": "Пассив" },
+    { "Code": "84", "Name": "Нераспределённая прибыль", "Type": "АП" },
+    { "Code": "90", "Name": "Продажи", "Type": "АП" },
+    { "Code": "91", "Name": "Прочие доходы и расходы", "Type": "АП" },
+    { "Code": "99", "Name": "Прибыли и убытки", "Type": "АП" }
+  ],
+  "SavedAt": "2026-03-31"
+}
