@@ -9,7 +9,7 @@ namespace BuhUchet
     /// </summary>
     public class DataService
     {
-        // ─── ОСВ (оборотно-сальдовая ведомость) ─────────────────────────────
+        // ОСВ (оборотно-сальдовая ведомость)
         public List<OsvRow> BuildOsv(
             List<JournalEntry> journal,
             List<AccountPlan> accounts,
@@ -58,7 +58,7 @@ namespace BuhUchet
             return rows;
         }
 
-        // ─── Отчёт по контрагенту ────────────────────────────────────────────
+        // Отчёт по контрагенту
         public List<JournalEntry> FilterByCounterparty(
             List<JournalEntry> journal, string counterparty)
             => journal

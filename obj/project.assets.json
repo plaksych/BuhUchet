@@ -61,11 +61,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\plaksych\\Documents\\Учёба\\BuhUchet_project\\BuhUchet\\BuhUchet.csproj",
+      "projectUniqueName": "C:\\Users\\plaksych\\Documents\\Учёба\\Курсовая (Мирошников)\\BuhUchet\\BuhUchet.csproj",
       "projectName": "BuhUchet",
-      "projectPath": "C:\\Users\\plaksych\\Documents\\Учёба\\BuhUchet_project\\BuhUchet\\BuhUchet.csproj",
+      "projectPath": "C:\\Users\\plaksych\\Documents\\Учёба\\Курсовая (Мирошников)\\BuhUchet\\BuhUchet.csproj",
       "packagesPath": "C:\\Users\\plaksych\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\plaksych\\Documents\\Учёба\\BuhUchet_project\\BuhUchet\\obj\\",
+      "outputPath": "C:\\Users\\plaksych\\Documents\\Учёба\\Курсовая (Мирошников)\\BuhUchet\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

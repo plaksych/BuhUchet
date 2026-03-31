@@ -13,7 +13,7 @@ namespace BuhUchet
             => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
     }
 
-    // ─── Проводка (журнальная запись) ───────────────────────────────────────
+    // Проводка (журнальная запись)
     public class JournalEntry : NotifyObject
     {
         private int _id;
@@ -37,7 +37,7 @@ namespace BuhUchet
         public decimal  Amount         { get => _amount;         set { _amount = value;         OnPropertyChanged(); } }
     }
 
-    // ─── Контрагент ─────────────────────────────────────────────────────────
+    // Контрагент
     public class Counterparty : NotifyObject
     {
         private string _name = "";
@@ -53,7 +53,7 @@ namespace BuhUchet
         public string Type            { get => _type;            set { _type = value;            OnPropertyChanged(); } } // Поставщик / Покупатель / Прочее
     }
 
-    // ─── Счёт плана счетов ──────────────────────────────────────────────────
+    // Счёт плана счетов
     public class AccountPlan : NotifyObject
     {
         private string _code = "";
@@ -65,7 +65,7 @@ namespace BuhUchet
         public string Type        { get => _type; set { _type = value; OnPropertyChanged(); } } // Актив / Пассив / АП
     }
 
-    // ─── Строка ОСВ (оборотно-сальдовая ведомость) ──────────────────────────
+    // Строка ОСВ (оборотно-сальдовая ведомость)
     public class OsvRow
     {
         public string  Account     { get; set; } = "";
@@ -78,7 +78,7 @@ namespace BuhUchet
         public decimal CloseCredit => Math.Max(0, OpenCredit - OpenDebit   + TurnCredit - TurnDebit);
     }
 
-    // ─── Файл сохранения ────────────────────────────────────────────────────
+    // Файл сохранения
     public class SaveFile
     {
         public List<JournalEntry> Journal       { get; set; } = new();

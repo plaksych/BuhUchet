@@ -15,7 +15,7 @@ namespace BuhUchet
     {
         private readonly Dictionary<TextBox, AutoCompleteState> _states = new();
 
-        // ─── Подключить TextBox к сервису ───────────────────────────────────
+        // Подключить TextBox к сервису
         public void Attach(TextBox textBox, Func<IEnumerable<string>> sourceProvider, Action<string>? onSelected = null)
         {
             var state = new AutoCompleteState(sourceProvider, onSelected);
@@ -59,7 +59,7 @@ namespace BuhUchet
             };
         }
 
-        // ─── Обработка Tab ──────────────────────────────────────────────────
+        // Обработка Tab
         private bool HandleTab(TextBox textBox, AutoCompleteState state)
         {
             string prefix = textBox.Text.Trim();
@@ -85,7 +85,7 @@ namespace BuhUchet
             return false;
         }
 
-        // ─── Показать popup со списком вариантов ────────────────────────────
+        // Показать popup со списком вариантов
         private void ShowSuggestions(TextBox textBox, AutoCompleteState state)
         {
             var matches = GetMatches(state, textBox.Text.Trim()).ToList();
@@ -104,7 +104,7 @@ namespace BuhUchet
                 state.Popup.IsOpen = false;
         }
 
-        // ─── Создать Popup + ListBox ─────────────────────────────────────────
+        // Создать Popup + ListBox
         private void BuildPopup(TextBox textBox, AutoCompleteState state)
         {
             var listBox = new ListBox
@@ -171,7 +171,7 @@ namespace BuhUchet
         }
     }
 
-    // ─── Состояние для каждого TextBox ──────────────────────────────────────
+    // Состояние для каждого TextBox
     internal class AutoCompleteState
     {
         public Func<IEnumerable<string>> SourceProvider { get; }

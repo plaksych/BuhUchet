@@ -1,36 +1,7 @@
 {
   "Version": 1,
   "WorkspaceRootPath": "C:\\Users\\plaksych\\Documents\\\u0423\u0447\u0451\u0431\u0430\\\u041A\u0443\u0440\u0441\u043E\u0432\u0430\u044F (\u041C\u0438\u0440\u043E\u0448\u043D\u0438\u043A\u043E\u0432)\\BuhUchet\\",
-  "Documents": [
-    {
-      "AbsoluteMoniker": "D:0:0:{DA8456AD-A6FE-4B10-BD54-7B14DD7B94B5}|BuhUchet.csproj|c:\\users\\plaksych\\documents\\\u0443\u0447\u0451\u0431\u0430\\\u043A\u0443\u0440\u0441\u043E\u0432\u0430\u044F (\u043C\u0438\u0440\u043E\u0448\u043D\u0438\u043A\u043E\u0432)\\buhuchet\\app.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
-      "RelativeMoniker": "D:0:0:{DA8456AD-A6FE-4B10-BD54-7B14DD7B94B5}|BuhUchet.csproj|solutionrelative:app.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{DA8456AD-A6FE-4B10-BD54-7B14DD7B94B5}|BuhUchet.csproj|c:\\users\\plaksych\\documents\\\u0443\u0447\u0451\u0431\u0430\\\u043A\u0443\u0440\u0441\u043E\u0432\u0430\u044F (\u043C\u0438\u0440\u043E\u0448\u043D\u0438\u043A\u043E\u0432)\\buhuchet\\app.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{DA8456AD-A6FE-4B10-BD54-7B14DD7B94B5}|BuhUchet.csproj|solutionrelative:app.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{DA8456AD-A6FE-4B10-BD54-7B14DD7B94B5}|BuhUchet.csproj|c:\\users\\plaksych\\documents\\\u0443\u0447\u0451\u0431\u0430\\\u043A\u0443\u0440\u0441\u043E\u0432\u0430\u044F (\u043C\u0438\u0440\u043E\u0448\u043D\u0438\u043A\u043E\u0432)\\buhuchet\\assemblyinfo.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{DA8456AD-A6FE-4B10-BD54-7B14DD7B94B5}|BuhUchet.csproj|solutionrelative:assemblyinfo.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{DA8456AD-A6FE-4B10-BD54-7B14DD7B94B5}|BuhUchet.csproj|c:\\users\\plaksych\\documents\\\u0443\u0447\u0451\u0431\u0430\\\u043A\u0443\u0440\u0441\u043E\u0432\u0430\u044F (\u043C\u0438\u0440\u043E\u0448\u043D\u0438\u043A\u043E\u0432)\\buhuchet\\autocompleteservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{DA8456AD-A6FE-4B10-BD54-7B14DD7B94B5}|BuhUchet.csproj|solutionrelative:autocompleteservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{DA8456AD-A6FE-4B10-BD54-7B14DD7B94B5}|BuhUchet.csproj|c:\\users\\plaksych\\documents\\\u0443\u0447\u0451\u0431\u0430\\\u043A\u0443\u0440\u0441\u043E\u0432\u0430\u044F (\u043C\u0438\u0440\u043E\u0448\u043D\u0438\u043A\u043E\u0432)\\buhuchet\\dataservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{DA8456AD-A6FE-4B10-BD54-7B14DD7B94B5}|BuhUchet.csproj|solutionrelative:dataservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{DA8456AD-A6FE-4B10-BD54-7B14DD7B94B5}|BuhUchet.csproj|c:\\users\\plaksych\\documents\\\u0443\u0447\u0451\u0431\u0430\\\u043A\u0443\u0440\u0441\u043E\u0432\u0430\u044F (\u043C\u0438\u0440\u043E\u0448\u043D\u0438\u043A\u043E\u0432)\\buhuchet\\mainwindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{DA8456AD-A6FE-4B10-BD54-7B14DD7B94B5}|BuhUchet.csproj|solutionrelative:mainwindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{DA8456AD-A6FE-4B10-BD54-7B14DD7B94B5}|BuhUchet.csproj|c:\\users\\plaksych\\documents\\\u0443\u0447\u0451\u0431\u0430\\\u043A\u0443\u0440\u0441\u043E\u0432\u0430\u044F (\u043C\u0438\u0440\u043E\u0448\u043D\u0438\u043A\u043E\u0432)\\buhuchet\\mainwindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
-      "RelativeMoniker": "D:0:0:{DA8456AD-A6FE-4B10-BD54-7B14DD7B94B5}|BuhUchet.csproj|solutionrelative:mainwindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
-    }
-  ],
+  "Documents": [],
   "DocumentGroupContainers": [
     {
       "Orientation": 0,
@@ -38,100 +9,11 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 5,
+          "SelectedChildIndex": -1,
           "Children": [
             {
               "$type": "Bookmark",
               "Name": "ST:0:0:{cce594b6-0c39-4442-ba28-10c64ac7e89f}"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "App.xaml.cs",
-              "DocumentMoniker": "C:\\Users\\plaksych\\Documents\\\u0423\u0447\u0451\u0431\u0430\\\u041A\u0443\u0440\u0441\u043E\u0432\u0430\u044F (\u041C\u0438\u0440\u043E\u0448\u043D\u0438\u043A\u043E\u0432)\\BuhUchet\\App.xaml.cs",
-              "RelativeDocumentMoniker": "App.xaml.cs",
-              "ToolTip": "C:\\Users\\plaksych\\Documents\\\u0423\u0447\u0451\u0431\u0430\\\u041A\u0443\u0440\u0441\u043E\u0432\u0430\u044F (\u041C\u0438\u0440\u043E\u0448\u043D\u0438\u043A\u043E\u0432)\\BuhUchet\\App.xaml.cs",
-              "RelativeToolTip": "App.xaml.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-30T17:58:59.888Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "AssemblyInfo.cs",
-              "DocumentMoniker": "C:\\Users\\plaksych\\Documents\\\u0423\u0447\u0451\u0431\u0430\\\u041A\u0443\u0440\u0441\u043E\u0432\u0430\u044F (\u041C\u0438\u0440\u043E\u0448\u043D\u0438\u043A\u043E\u0432)\\BuhUchet\\AssemblyInfo.cs",
-              "RelativeDocumentMoniker": "AssemblyInfo.cs",
-              "ToolTip": "C:\\Users\\plaksych\\Documents\\\u0423\u0447\u0451\u0431\u0430\\\u041A\u0443\u0440\u0441\u043E\u0432\u0430\u044F (\u041C\u0438\u0440\u043E\u0448\u043D\u0438\u043A\u043E\u0432)\\BuhUchet\\AssemblyInfo.cs",
-              "RelativeToolTip": "AssemblyInfo.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-30T17:58:39.376Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "AutoCompleteService.cs",
-              "DocumentMoniker": "C:\\Users\\plaksych\\Documents\\\u0423\u0447\u0451\u0431\u0430\\\u041A\u0443\u0440\u0441\u043E\u0432\u0430\u044F (\u041C\u0438\u0440\u043E\u0448\u043D\u0438\u043A\u043E\u0432)\\BuhUchet\\AutoCompleteService.cs",
-              "RelativeDocumentMoniker": "AutoCompleteService.cs",
-              "ToolTip": "C:\\Users\\plaksych\\Documents\\\u0423\u0447\u0451\u0431\u0430\\\u041A\u0443\u0440\u0441\u043E\u0432\u0430\u044F (\u041C\u0438\u0440\u043E\u0448\u043D\u0438\u043A\u043E\u0432)\\BuhUchet\\AutoCompleteService.cs",
-              "RelativeToolTip": "AutoCompleteService.cs",
-              "ViewState": "AgIAAJ0AAAAAAAAAAAAcwAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-30T17:58:38.456Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 4,
-              "Title": "DataService.cs",
-              "DocumentMoniker": "C:\\Users\\plaksych\\Documents\\\u0423\u0447\u0451\u0431\u0430\\\u041A\u0443\u0440\u0441\u043E\u0432\u0430\u044F (\u041C\u0438\u0440\u043E\u0448\u043D\u0438\u043A\u043E\u0432)\\BuhUchet\\DataService.cs",
-              "RelativeDocumentMoniker": "DataService.cs",
-              "ToolTip": "C:\\Users\\plaksych\\Documents\\\u0423\u0447\u0451\u0431\u0430\\\u041A\u0443\u0440\u0441\u043E\u0432\u0430\u044F (\u041C\u0438\u0440\u043E\u0448\u043D\u0438\u043A\u043E\u0432)\\BuhUchet\\DataService.cs",
-              "RelativeToolTip": "DataService.cs",
-              "ViewState": "AgIAAH4AAAAAAAAAAAAmwAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-30T17:58:36.913Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "App.xaml",
-              "DocumentMoniker": "C:\\Users\\plaksych\\Documents\\\u0423\u0447\u0451\u0431\u0430\\\u041A\u0443\u0440\u0441\u043E\u0432\u0430\u044F (\u041C\u0438\u0440\u043E\u0448\u043D\u0438\u043A\u043E\u0432)\\BuhUchet\\App.xaml",
-              "RelativeDocumentMoniker": "App.xaml",
-              "ToolTip": "C:\\Users\\plaksych\\Documents\\\u0423\u0447\u0451\u0431\u0430\\\u041A\u0443\u0440\u0441\u043E\u0432\u0430\u044F (\u041C\u0438\u0440\u043E\u0448\u043D\u0438\u043A\u043E\u0432)\\BuhUchet\\App.xaml",
-              "RelativeToolTip": "App.xaml",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
-              "WhenOpened": "2026-03-30T17:57:32.268Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 6,
-              "Title": "MainWindow.xaml",
-              "DocumentMoniker": "C:\\Users\\plaksych\\Documents\\\u0423\u0447\u0451\u0431\u0430\\\u041A\u0443\u0440\u0441\u043E\u0432\u0430\u044F (\u041C\u0438\u0440\u043E\u0448\u043D\u0438\u043A\u043E\u0432)\\BuhUchet\\MainWindow.xaml",
-              "RelativeDocumentMoniker": "MainWindow.xaml",
-              "ToolTip": "C:\\Users\\plaksych\\Documents\\\u0423\u0447\u0451\u0431\u0430\\\u041A\u0443\u0440\u0441\u043E\u0432\u0430\u044F (\u041C\u0438\u0440\u043E\u0448\u043D\u0438\u043A\u043E\u0432)\\BuhUchet\\MainWindow.xaml",
-              "RelativeToolTip": "MainWindow.xaml",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
-              "WhenOpened": "2026-03-30T17:42:33.442Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 5,
-              "Title": "MainWindow.xaml.cs",
-              "DocumentMoniker": "C:\\Users\\plaksych\\Documents\\\u0423\u0447\u0451\u0431\u0430\\\u041A\u0443\u0440\u0441\u043E\u0432\u0430\u044F (\u041C\u0438\u0440\u043E\u0448\u043D\u0438\u043A\u043E\u0432)\\BuhUchet\\MainWindow.xaml.cs",
-              "RelativeDocumentMoniker": "MainWindow.xaml.cs",
-              "ToolTip": "C:\\Users\\plaksych\\Documents\\\u0423\u0447\u0451\u0431\u0430\\\u041A\u0443\u0440\u0441\u043E\u0432\u0430\u044F (\u041C\u0438\u0440\u043E\u0448\u043D\u0438\u043A\u043E\u0432)\\BuhUchet\\MainWindow.xaml.cs",
-              "RelativeToolTip": "MainWindow.xaml.cs",
-              "ViewState": "AgIAADMBAAAAAAAAAAAwwAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-30T17:42:29.961Z",
-              "EditorCaption": ""
             }
           ]
         }
