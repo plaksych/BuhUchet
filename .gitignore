@@ -57,3 +57,4 @@ nunit-*.xml
 /.vs/
 /bin/
 /obj/
+report*
