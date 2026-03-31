@@ -54,6 +54,6 @@ TestResult.xml
 nunit-*.xml
 
 # Project
-.vs/
-bin/
-obj/
+/.vs/
+/bin/
+/obj/
