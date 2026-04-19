@@ -86,4 +86,11 @@ namespace BuhUchet
         public List<AccountPlan>  Accounts       { get; set; } = new();
         public DateTime           SavedAt        { get; set; } = DateTime.Now;
     }
+    // Пользователь
+    public class User
+    {
+        public string Username { get; set; } = "";
+        public string PasswordHash { get; set; } = ""; // SHA-256
+        public DateTime CreatedAt { get; set; } = DateTime.Now;
+    }
 }

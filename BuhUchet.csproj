@@ -18,7 +18,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Assets\appicon.png">
+    <Content Include="assets\appicon.ico">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </Content>

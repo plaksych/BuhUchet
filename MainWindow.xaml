@@ -6,7 +6,7 @@
         Height="720" Width="1440"
         MinHeight="600" MinWidth="900"
         Background="#F0F2F5"
-        Icon="pack://siteoforigin:,,,/Assets/appicon.png"
+        Icon="/assets/appicon.ico"
         WindowStartupLocation="CenterScreen">
 
     <Window.Resources>
